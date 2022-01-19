@@ -29,6 +29,12 @@ This bot is written in python, and uses the following libraries:
 
 [requests](https://pypi.org/project/requests/)
 
+# Discord Setup
+
+I suggest to follow the guide at [Discord.py](https://discordpy.readthedocs.io/en/stable/index.html) on how to create the bot in the Discord [Developer Portal](https://discord.com/developers/applications).
+
+When using the OAuth2 URL Generator, as far as I can tell, this bot only needs permissions to 'Read Messages/View Channels' and 'Send Messages'.
+
 # Functions
 
 The bot can filter by Zone and by Server, so you can get all the servers in a zone and a specific server. Remember that this bot is case unsensitive for the commands arguments, so you can write "US WEST" and "us west", it will be the same for it.
