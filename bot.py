@@ -112,12 +112,16 @@ def server_scrape():
                         server_obj = {}
                         if ((server_status_class + "--up") in status.attrs.get("class")):
                                 server_status = "Up"
-                        if ((server_status_class + "--down") in status.attrs.get("class")):
+                        elif ((server_status_class + "--down") in status.attrs.get("class")):
                                 server_status = "Down"
-                        if ((server_status_class + "--full") in status.attrs.get("class")):
+                        elif ((server_status_class + "--full") in status.attrs.get("class")):
                                 server_status = "Full"
-                        if ((server_status_class + "--maintenance") in status.attrs.get("class")):
+                        elif ((server_status_class + "--maintenance") in status.attrs.get("class")):
                                 server_status = "Maintenance"
+                        elif ((server_status_class + "--noTransfer") in status.attrs.get("class")):
+                                server_status = "NoTransfer"
+                        else:
+                                server_status = "Unknown"
                         server_obj['name'] = name.text.replace("\n","").replace("\r","").replace(" ","")
                         server_obj['status'] = server_status
                         servers_arr.append(server_obj)
