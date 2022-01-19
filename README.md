@@ -3,6 +3,8 @@ Discord bot to know the status of the New World game server status
 
 This bot is intented to only know the status of the servers of the various regions. I don't own any of the data provided by the bot, it is all obtained by scraping the support page of the official game here: https://www.newworld.com/en-us/support/server-status
 
+Actually, it's taken from https://www.newworld.com/it-it/support/server-status because that localized version has less bugs.
+
 The bot returns the status of each server according to the support page:
 
 `Up ✅`: The server is on.
@@ -13,9 +15,9 @@ The bot returns the status of each server according to the support page:
 
 `Maintenance ⚠️`: The server is down for maintenance.
 
-You can invite this bot with the following link:
+`NoTransfer 🛂`: The server is on but doesn't allow character transfers.
 
-[New World Server Status](https://discord.com/api/oauth2/authorize?client_id=898268933801525319&permissions=377957125120&scope=bot)
+`Unknown ❓`: In case AGS adds new stati in the future.
 
 # Setup
 
