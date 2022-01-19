@@ -34,6 +34,11 @@ async def multiprint(ctx, text):
         for t in tText:
                 await ctx.send(t)
 
+#print our user name
+@bot.event
+async def on_ready():
+    print('We have logged in as {0.user}'.format(bot))
+
 #gets all the zones
 @bot.command()
 async def zones(ctx):
