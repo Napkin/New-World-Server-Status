@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from datetime import datetime
 
-zones_array = ['US EAST', 'SA EAST', 'EU CENTRAL', 'AP SOUTHEAST', 'US WEST']
+zones_array = ['US WEST', 'US EAST', 'SA EAST', 'EU CENTRAL', 'AP SOUTHEAST']
 
 zones_arr = {}
 ts = 0
