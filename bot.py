@@ -3,16 +3,73 @@ import requests
 from bs4 import BeautifulSoup
 
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 from datetime import datetime
 
 zones_array = ['US WEST', 'US EAST', 'SA EAST', 'EU CENTRAL', 'AP SOUTHEAST']
-
 zones_arr = {}
 ts = 0
 
 bot = commands.Bot(command_prefix='$')
+
+def get_status(server):
+    zone_class = "ags-ServerStatus-content-responses-response"
+    server_class = zone_class + "-server"
+    server_name_class = server_class + "-name"
+    server_status_class = server_class + "-status"
+
+    URL = "https://www.newworld.com/it-it/support/server-status"
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    chunks = soup.find_all("div", class_=server_class)
+    for chunk in chunks:
+        if server in chunk.find("div", class_=server_name_class).text:
+            status = chunk.find("div", class_=server_status_class)
+            server_status = ""
+            if ((server_status_class + "--up") in status.attrs.get("class")):
+                server_status = "Up"
+            elif ((server_status_class + "--down") in status.attrs.get("class")):
+                server_status = "Down"
+            elif ((server_status_class + "--full") in status.attrs.get("class")):
+                server_status = "Full"
+            elif ((server_status_class + "--maintenance") in status.attrs.get("class")):
+                server_status = "Maintenance"
+            elif ((server_status_class + "--noTransfer") in status.attrs.get("class")):
+                server_status = "NoTransfer"
+            else:
+                server_status = "Unknown"
+            return server_status
+    return "Not found"
+
+async def send_message_to_channel(channel_id: int, text: str):
+    channel: TextChannel = bot.get_channel(channel_id)
+    await channel.send(text)
+
+class my_cog(commands.Cog):
+
+    def __init__(self, bot):
+        self.our_server = config.our_server
+        self.our_status = "Down"
+        self.bot = bot
+        self.scrapper.start()
+
+    def cog_unload(self):
+        self.scrapper.cancel()
+
+    @tasks.loop(seconds=60.0)
+    async def scrapper(self):
+        new_status = get_status(self.our_server)
+        if self.our_status != new_status:
+            print("I changed status from {} to {}.".format(self.our_status, new_status))
+            self.our_status = new_status
+            await send_message_to_channel(config.channel_id, "My status is now \"{}\" {} !".format(self.our_status, config.emoji_status[self.our_status]))
+
+    @scrapper.before_loop
+    async def before_scrapper(self):
+        print('Connecting...')
+        await self.bot.wait_until_ready()
 
 async def multiprint(ctx, text):
         i = 0
@@ -135,4 +192,5 @@ def server_scrape():
         ts = datetime.timestamp(datetime.now())
         return zones_arr
 
+cog = my_cog(bot)
 bot.run(config.key)
