@@ -58,7 +58,7 @@ class my_cog(commands.Cog):
     def cog_unload(self):
         self.scrapper.cancel()
 
-    @tasks.loop(seconds=60.0)
+    @tasks.loop(seconds=120.0)
     async def scrapper(self):
         new_status = get_status(self.our_server)
         if self.our_status != new_status:
