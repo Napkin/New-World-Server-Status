@@ -8,7 +8,11 @@ from discord.ext import tasks, commands
 
 from datetime import datetime
 
-lastTimeChecked: tuple[datetime, str]
+try:
+    lastTimeChecked: tuple[datetime, str]
+except:
+    lastTimeChecked = None
+
 
 zones_array = ['US WEST', 'US EAST', 'SA EAST', 'EU CENTRAL', 'AP SOUTHEAST']
 zones_arr = {}
