@@ -1,11 +1,18 @@
+from numpy import str_
 import config
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 import discord
 from discord.ext import tasks, commands
 
 from datetime import datetime
+
+try:
+    lastTimeChecked: tuple[datetime, str]
+except:
+    lastTimeChecked = None
+
 
 zones_array = ['US WEST', 'US EAST', 'SA EAST', 'EU CENTRAL', 'AP SOUTHEAST']
 zones_arr = {}
@@ -13,15 +20,28 @@ ts = 0
 
 bot = commands.Bot(command_prefix='$')
 
+
+
+
 def get_status(server):
     zone_class = "ags-ServerStatus-content-responses-response"
     server_class = zone_class + "-server"
     server_name_class = server_class + "-name"
     server_status_class = server_class + "-status"
 
-    URL = "https://www.newworld.com/it-it/support/server-status"
+    URL = "https://www.newworld.com/en-us/support/server-status"
+
     page = requests.get(URL)
     soup = BeautifulSoup(page.content, "html.parser")
+
+    timeChunk: Tag = soup.find("div", class_="ags-ServerStatus-content-lastUpdated")  
+    timeChunk: str = timeChunk.contents[0].split(":", 1)[1].strip()[:-7]
+
+    dt = datetime.strptime(timeChunk, "%B %d, %Y %H:%M:%S")
+
+    if lastTimeChecked:
+        if dt <= lastTimeChecked[0]:
+            return lastTimeChecked[1]
 
     chunks = soup.find_all("div", class_=server_class)
     for chunk in chunks:
@@ -34,6 +54,7 @@ def get_status(server):
                 server_status = "Maintenance"
             else:
                 server_status = "Up"
+            lastTimeChecked = (dt, server_status)
             return server_status
     return "Unknown"
 
