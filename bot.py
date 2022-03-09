@@ -28,20 +28,14 @@ def get_status(server):
         if server in chunk.find("div", class_=server_name_class).text:
             status = chunk.find("div", class_=server_status_class)
             server_status = ""
-            if ((server_status_class + "--up") in status.attrs.get("class")):
-                server_status = "Up"
-            elif ((server_status_class + "--down") in status.attrs.get("class")):
+            if ((server_status_class + "--down") in status.attrs.get("class")):
                 server_status = "Down"
-            elif ((server_status_class + "--full") in status.attrs.get("class")):
-                server_status = "Full"
             elif ((server_status_class + "--maintenance") in status.attrs.get("class")):
                 server_status = "Maintenance"
-            elif ((server_status_class + "--noTransfer") in status.attrs.get("class")):
-                server_status = "NoTransfer"
             else:
-                server_status = "Unknown"
+                server_status = "Up"
             return server_status
-    return "Not found"
+    return "Unknown"
 
 async def send_message_to_channel(channel_id: int, text: str):
     channel: TextChannel = bot.get_channel(channel_id)
@@ -51,20 +45,22 @@ class my_cog(commands.Cog):
 
     def __init__(self, bot):
         self.our_server = config.our_server
-        self.our_status = "Down"
+        self.our_status = "Up"
         self.bot = bot
         self.scrapper.start()
 
     def cog_unload(self):
         self.scrapper.cancel()
 
-    @tasks.loop(seconds=120.0)
+    @tasks.loop(seconds=180.0)
     async def scrapper(self):
         new_status = get_status(self.our_server)
         if self.our_status != new_status:
-            print("I changed status from {} to {}.".format(self.our_status, new_status))
+            precise_now = datetime.now().strftime("%Y_%m_%d-%H:%M:%S")
+            hmonly_now = datetime.now().strftime("%H:%M")
+            print("I changed status from {} to {} ({}).".format(self.our_status, new_status, precise_now))
             self.our_status = new_status
-            await send_message_to_channel(config.channel_id, "My status is now \"{}\" {} !".format(self.our_status, config.emoji_status[self.our_status]))
+            await send_message_to_channel(config.channel_id, "My status is now \"{}\"! {} ({} CET)".format(self.our_status, config.emoji_status[self.our_status], hmonly_now))
 
     @scrapper.before_loop
     async def before_scrapper(self):
