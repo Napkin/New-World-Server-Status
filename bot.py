@@ -1,4 +1,3 @@
-from numpy import str_
 import config
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -9,7 +8,7 @@ from discord.ext import tasks, commands
 from datetime import datetime
 
 try:
-    lastTimeChecked: tuple[datetime, str]
+    lastTimeChecked: tuple[datetime, str] = None
 except:
     lastTimeChecked = None
 
@@ -19,8 +18,6 @@ zones_arr = {}
 ts = 0
 
 bot = commands.Bot(command_prefix='$')
-
-
 
 
 def get_status(server):
@@ -38,6 +35,8 @@ def get_status(server):
     timeChunk: str = timeChunk.contents[0].split(":", 1)[1].strip()[:-7]
 
     dt = datetime.strptime(timeChunk, "%B %d, %Y %H:%M:%S")
+
+    global lastTimeChecked
 
     if lastTimeChecked:
         if dt <= lastTimeChecked[0]:
@@ -73,7 +72,7 @@ class my_cog(commands.Cog):
     def cog_unload(self):
         self.scrapper.cancel()
 
-    @tasks.loop(seconds=180.0)
+    @tasks.loop(seconds=180)
     async def scrapper(self):
         new_status = get_status(self.our_server)
         if self.our_status != new_status:
